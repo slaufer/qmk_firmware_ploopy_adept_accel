@@ -27,10 +27,6 @@
 #    define ACCEL_SCALE 16.0  // Maximum multiplier for movement (adjust for comfort)
 #endif
 
-// Drag scroll configuration
-#define PLOOPY_DRAGSCROLL_MOMENTARY  // Make drag scroll work while button is held
-#define PLOOPY_DRAGSCROLL_INVERT     // Reverse drag scroll direction
-
 const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
     [0] = LAYOUT( MS_BTN4, MS_BTN5, DRAG_SCROLL, MS_BTN2, MS_BTN1, MS_BTN3 ),
     [1] = LAYOUT( _______, _______, _______,     _______, _______, _______ ),
