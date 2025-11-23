@@ -21,14 +21,14 @@
 // Acceleration curve parameters
 // Adjust these to tune the acceleration behavior
 #ifndef ACCEL_K
-#    define ACCEL_K 0.05     // Controls how quickly acceleration ramps up (higher = faster ramp)
+#    define ACCEL_K 0.1     // Controls how quickly acceleration ramps up (higher = faster ramp)
 #endif
 #ifndef ACCEL_SCALE
-#    define ACCEL_SCALE 16.0  // Maximum multiplier for movement (adjust for comfort)
+#    define ACCEL_SCALE 10.0  // Maximum multiplier for movement (adjust for comfort)
 #endif
 
 const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
-    [0] = LAYOUT( MS_BTN4, MS_BTN5, DRAG_SCROLL, MS_BTN2, MS_BTN1, MS_BTN3 ),
+    [0] = LAYOUT( MS_BTN3, MS_BTN4, MS_BTN5, DRAG_SCROLL, MS_BTN1, MS_BTN2 ),
     [1] = LAYOUT( _______, _______, _______,     _______, _______, _______ ),
     [2] = LAYOUT( _______, _______, _______,     _______, _______, _______ ),
     [3] = LAYOUT( _______, _______, _______,     _______, _______, _______ )
@@ -39,10 +39,17 @@ static float apply_acceleration(int8_t val) {
     if (val == 0) return 0;
 
     float abs_val = fabsf((float)val);
+
+    // Deadzone for sensor noise
+    if (abs_val < 0.5f) return 0;
+
     float sign = (val > 0) ? 1.0f : -1.0f;
 
     // Exponential approach curve: output = scale * (1 - e^(-k * input))
     float accelerated = ACCEL_SCALE * (1.0f - expf(-ACCEL_K * abs_val));
+
+    // Ensure at least 1 pixel movement
+    if (accelerated < 1.0f) accelerated = 1.0f;
 
     return sign * accelerated;
 }
