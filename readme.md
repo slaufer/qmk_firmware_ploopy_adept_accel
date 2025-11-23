@@ -1,3 +1,7 @@
+# Ploopy mouse acceleration fork
+
+Follow the QMK build guide, then build with `qmk compile -kb ploopyco/madromys/rev1_001/ -km accel`
+
 # Quantum Mechanical Keyboard Firmware
 
 [![Current Version](https://img.shields.io/github/tag/qmk/qmk_firmware.svg)](https://github.com/qmk/qmk_firmware/tags)
