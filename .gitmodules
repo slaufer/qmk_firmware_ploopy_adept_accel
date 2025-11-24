@@ -1,6 +1,3 @@
-[submodule "lib/lufa"]
-	path = lib/lufa
-	url = https://github.com/qmk/lufa
 [submodule "lib/vusb"]
 	path = lib/vusb
 	url = https://github.com/qmk/v-usb
