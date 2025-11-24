@@ -1,6 +1,3 @@
-[submodule "lib/vusb"]
-	path = lib/vusb
-	url = https://github.com/qmk/v-usb
 [submodule "modules/drashna/qmk_modules"]
 	path = modules/drashna/qmk_modules
 	url = https://github.com/drashna/qmk_modules.git
