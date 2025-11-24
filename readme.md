@@ -6,6 +6,10 @@ Nevermind, updated this repo to use the community module which is much better
 
 Follow the QMK build guide, then build with `qmk compile -kb ploopyco/madromys/rev1_001/ -km default`
 
+(or just use `ploopyco_madromys_rev1_001__default.uf2` from the root directory)
+
+Load `ploopyco_madromys_rev1_001__via_v3.json` in the design tab in VIA for access to acceleration settings.
+
 # Quantum Mechanical Keyboard Firmware
 
 [![Current Version](https://img.shields.io/github/tag/qmk/qmk_firmware.svg)](https://github.com/qmk/qmk_firmware/tags)
