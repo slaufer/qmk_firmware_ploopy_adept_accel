@@ -1,6 +1,10 @@
 # Ploopy mouse acceleration fork
 
-Follow the QMK build guide, then build with `qmk compile -kb ploopyco/madromys/rev1_001/ -km accel`
+~~Follow the QMK build guide, then build with `qmk compile -kb ploopyco/madromys/rev1_001/ -km accel`~~
+
+Nevermind, updated this repo to use the community module which is much better
+
+Follow the QMK build guide, then build with `qmk compile -kb ploopyco/madromys/rev1_001/ -km default`
 
 # Quantum Mechanical Keyboard Firmware
 

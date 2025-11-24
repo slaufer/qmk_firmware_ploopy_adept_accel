@@ -1,6 +1,5 @@
 /* Copyright 2023 Colin Lam (Ploopy Corporation)
  * Copyright 2020 Christopher Courtney, aka Drashna Jael're  (@drashna) <drashna@live.com>
- * Copyright 2019 Sunjun Kim
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -15,8 +14,14 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-#include QMK_KEYBOARD_H
 
-const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
-    [0] = LAYOUT( MS_BTN3, MS_BTN4, MS_BTN5, DRAG_SCROLL, MS_BTN1, MS_BTN2 )
-};
+#pragma once
+
+// Pointing device acceleration configuration
+#define POINTING_DEVICE_ACCEL_TAKEOFF 2.0
+#define POINTING_DEVICE_ACCEL_GROWTH_RATE 0.25
+#define POINTING_DEVICE_ACCEL_OFFSET 2.2
+#define POINTING_DEVICE_ACCEL_LIMIT 0.2
+#define PLOOPY_DRAGSCROLL_MOMENTARY       // Make drag scroll work while button is held
+#define PLOOPY_DRAGSCROLL_INVERT          // Reverse drag scroll direction
+
