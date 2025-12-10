@@ -19,5 +19,8 @@
 
 const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
     [0] = LAYOUT( MS_BTN3, MS_BTN4, MS_BTN5, DRAG_SCROLL, MS_BTN1, MS_BTN2 ),
-    [1] = LAYOUT( MS_BTN3, MS_BTN4, MS_BTN5, MS_BTN2, MS_BTN1, DRAG_SCROLL )
+    [1] = LAYOUT( MS_BTN3, MS_BTN4, MS_BTN5, MS_BTN2, MS_BTN1, DRAG_SCROLL ),
+    [2] = LAYOUT( _______, _______, _______,     _______, _______, _______ ),
+    [3] = LAYOUT( _______, _______, _______,     _______, _______, _______ ),
+    [4] = LAYOUT( _______, _______, _______,     _______, _______, _______ )
 };

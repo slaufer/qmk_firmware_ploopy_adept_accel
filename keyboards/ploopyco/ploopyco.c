@@ -68,19 +68,11 @@ bool  is_drag_scroll       = false;
 float scroll_accumulated_h = 0;
 float scroll_accumulated_v = 0;
 
-// Multi-click detection for DRAG_SCROLL button
-#ifndef DRAG_SCROLL_MULTI_CLICK_TERM
-#    define DRAG_SCROLL_MULTI_CLICK_TERM 300  // ms between clicks to count as multi-click
-#endif
-#ifndef DRAG_SCROLL_MULTI_CLICK_COUNT
-#    define DRAG_SCROLL_MULTI_CLICK_COUNT 4   // number of clicks to trigger layer cycle
-#endif
-
-static uint8_t  drag_scroll_click_count = 0;
-static uint16_t drag_scroll_click_timer = 0;
-static bool     drag_scroll_ate_click   = false;  // Track if we ate the press, so we can eat the release too
-static uint8_t  drag_scroll_ate_row     = 0;      // Matrix row of eaten click
-static uint8_t  drag_scroll_ate_col     = 0;      // Matrix col of eaten click
+// Track DRAG_SCROLL button state for layer switching combos
+static bool     is_drag_scroll_held   = false;   // Is DRAG_SCROLL currently held down
+static bool     drag_scroll_ate_click = false;   // Track if we ate the press, so we can eat the release too
+static uint8_t  drag_scroll_ate_row   = 0;       // Matrix row of eaten click
+static uint8_t  drag_scroll_ate_col   = 0;       // Matrix col of eaten click
 
 #ifdef ENCODER_ENABLE
 uint16_t lastScroll        = 0; // Previous confirmed wheel event
@@ -211,36 +203,10 @@ bool process_record_kb(uint16_t keycode, keyrecord_t* record) {
         cycle_dpi();
     }
 
+    // Handle layer switching with DRAG_SCROLL + mouse button combos
     if (keycode == DRAG_SCROLL) {
         if (record->event.pressed) {
-            // Check if this is part of a multi-click sequence
-            if (timer_elapsed(drag_scroll_click_timer) < DRAG_SCROLL_MULTI_CLICK_TERM) {
-                drag_scroll_click_count++;
-            } else {
-                // Reset count if too much time has elapsed
-                drag_scroll_click_count = 1;
-            }
-
-            drag_scroll_click_timer = timer_read();
-
-            // If we've reached the target click count, cycle layer
-            if (drag_scroll_click_count >= DRAG_SCROLL_MULTI_CLICK_COUNT) {
-                drag_scroll_click_count = 0;
-
-                // Cycle to next layer
-                uint8_t current_layer = get_highest_layer(layer_state);
-                uint8_t next_layer = (current_layer + 1) % 2;
-                layer_move(next_layer);
-
-                // Store the position so we can eat the release event too
-                drag_scroll_ate_click = true;
-                drag_scroll_ate_row = record->event.key.row;
-                drag_scroll_ate_col = record->event.key.col;
-
-                // Eat this click - don't activate drag scroll or any other action
-                return false;
-            }
-
+            is_drag_scroll_held = true;
 #ifdef PLOOPY_DRAGSCROLL_MOMENTARY
             // Momentary mode - activate drag scroll while held
             is_drag_scroll = true;
@@ -249,11 +215,52 @@ bool process_record_kb(uint16_t keycode, keyrecord_t* record) {
             toggle_drag_scroll();
 #endif
         } else {
-            // Button released
+            is_drag_scroll_held = false;
 #ifdef PLOOPY_DRAGSCROLL_MOMENTARY
             // Momentary mode - deactivate drag scroll on release
             is_drag_scroll = false;
 #endif
+        }
+    }
+
+    // Layer switching with DRAG_SCROLL + mouse button combinations
+    if (is_drag_scroll_held && record->event.pressed) {
+        uint8_t target_layer = 0;
+        bool should_switch = false;
+
+        switch (keycode) {
+            case MS_BTN1:
+                target_layer = 0;
+                should_switch = true;
+                break;
+            case MS_BTN2:
+                target_layer = 1;
+                should_switch = true;
+                break;
+            case MS_BTN3:
+                target_layer = 2;
+                should_switch = true;
+                break;
+            case MS_BTN4:
+                target_layer = 3;
+                should_switch = true;
+                break;
+            case MS_BTN5:
+                target_layer = 4;
+                should_switch = true;
+                break;
+        }
+
+        if (should_switch) {
+            layer_move(target_layer);
+
+            // Store the position so we can eat the release event too
+            drag_scroll_ate_click = true;
+            drag_scroll_ate_row = record->event.key.row;
+            drag_scroll_ate_col = record->event.key.col;
+
+            // Eat this click - don't perform the button's normal action
+            return false;
         }
     }
 
