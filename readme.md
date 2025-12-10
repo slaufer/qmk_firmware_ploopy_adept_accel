@@ -10,6 +10,8 @@ Follow the QMK build guide, then build with `qmk compile -kb ploopyco/madromys/r
 
 Load `ploopyco_madromys_rev1_001__via_v3.json` in the design tab in VIA for access to acceleration settings.
 
+Press &lt;Drag Scroll&gt; + &lt;Mouse{1,2,3,4,5}&gt; to switch layers. (Don't forget to put Drag Scroll on every layer or you'll get stuck)
+
 # Quantum Mechanical Keyboard Firmware
 
 [![Current Version](https://img.shields.io/github/tag/qmk/qmk_firmware.svg)](https://github.com/qmk/qmk_firmware/tags)
