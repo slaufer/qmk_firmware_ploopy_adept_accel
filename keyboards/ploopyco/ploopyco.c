@@ -68,6 +68,20 @@ bool  is_drag_scroll       = false;
 float scroll_accumulated_h = 0;
 float scroll_accumulated_v = 0;
 
+// Multi-click detection for DRAG_SCROLL button
+#ifndef DRAG_SCROLL_MULTI_CLICK_TERM
+#    define DRAG_SCROLL_MULTI_CLICK_TERM 300  // ms between clicks to count as multi-click
+#endif
+#ifndef DRAG_SCROLL_MULTI_CLICK_COUNT
+#    define DRAG_SCROLL_MULTI_CLICK_COUNT 4   // number of clicks to trigger layer cycle
+#endif
+
+static uint8_t  drag_scroll_click_count = 0;
+static uint16_t drag_scroll_click_timer = 0;
+static bool     drag_scroll_ate_click   = false;  // Track if we ate the press, so we can eat the release too
+static uint8_t  drag_scroll_ate_row     = 0;      // Matrix row of eaten click
+static uint8_t  drag_scroll_ate_col     = 0;      // Matrix col of eaten click
+
 #ifdef ENCODER_ENABLE
 uint16_t lastScroll        = 0; // Previous confirmed wheel event
 uint16_t lastMidClick      = 0; // Stops scrollwheel from being read if it was pressed
@@ -172,6 +186,15 @@ bool process_record_kb(uint16_t keycode, keyrecord_t* record) {
         dprintf("KL: kc: %u, col: %u, row: %u, pressed: %u\n", keycode, record->event.key.col, record->event.key.row, record->event.pressed);
     }
 
+    // Check if we need to eat a release event from a layer-cycling multi-click
+    if (drag_scroll_ate_click && !record->event.pressed &&
+        record->event.key.row == drag_scroll_ate_row &&
+        record->event.key.col == drag_scroll_ate_col) {
+        // This is the release of the button we ate, suppress it
+        drag_scroll_ate_click = false;
+        return false;
+    }
+
     // Update Timer to prevent accidental scrolls
 #ifdef ENCODER_ENABLE
     if ((record->event.key.col == ENCODER_BUTTON_COL) && (record->event.key.row == ENCODER_BUTTON_ROW)) {
@@ -189,13 +212,49 @@ bool process_record_kb(uint16_t keycode, keyrecord_t* record) {
     }
 
     if (keycode == DRAG_SCROLL) {
-#ifdef PLOOPY_DRAGSCROLL_MOMENTARY
-        is_drag_scroll = record->event.pressed;
-#else
         if (record->event.pressed) {
+            // Check if this is part of a multi-click sequence
+            if (timer_elapsed(drag_scroll_click_timer) < DRAG_SCROLL_MULTI_CLICK_TERM) {
+                drag_scroll_click_count++;
+            } else {
+                // Reset count if too much time has elapsed
+                drag_scroll_click_count = 1;
+            }
+
+            drag_scroll_click_timer = timer_read();
+
+            // If we've reached the target click count, cycle layer
+            if (drag_scroll_click_count >= DRAG_SCROLL_MULTI_CLICK_COUNT) {
+                drag_scroll_click_count = 0;
+
+                // Cycle to next layer
+                uint8_t current_layer = get_highest_layer(layer_state);
+                uint8_t next_layer = (current_layer + 1) % 2;
+                layer_move(next_layer);
+
+                // Store the position so we can eat the release event too
+                drag_scroll_ate_click = true;
+                drag_scroll_ate_row = record->event.key.row;
+                drag_scroll_ate_col = record->event.key.col;
+
+                // Eat this click - don't activate drag scroll or any other action
+                return false;
+            }
+
+#ifdef PLOOPY_DRAGSCROLL_MOMENTARY
+            // Momentary mode - activate drag scroll while held
+            is_drag_scroll = true;
+#else
+            // Toggle mode - toggle drag scroll on single click
             toggle_drag_scroll();
-        }
 #endif
+        } else {
+            // Button released
+#ifdef PLOOPY_DRAGSCROLL_MOMENTARY
+            // Momentary mode - deactivate drag scroll on release
+            is_drag_scroll = false;
+#endif
+        }
     }
 
     return true;
